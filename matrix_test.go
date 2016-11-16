@@ -17,4 +17,7 @@ func TestNew(t *testing.T) {
 	fmt.Println(m.String())
 	fmt.Println(m.Get(1, 2))
 	fmt.Println(Multiply(m, n))
+
+	i := Identity(3)
+	fmt.Println(Multiply(m, i))
 }

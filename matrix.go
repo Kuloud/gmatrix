@@ -29,8 +29,8 @@ func (A *Matrix) Get(r, c int) float32 {
 
 func (A *Matrix) Column(n int) []float32 {
 	col := make([]float32, A.rows)
-	for i := 0; i < A.rows; i++ {
-		col[i] = A.Row(i)[n]
+	for i := 1; i <= A.rows; i++ {
+		col[i - 1] = A.Row(i)[n - 1]
 	}
 	return col
 }
@@ -38,7 +38,7 @@ func (A *Matrix) Column(n int) []float32 {
 // Row returns a slice that represents a row from the matrix.
 
 func (A *Matrix) Row(n int) []float32 {
-	return A.data[findIndex(n, 0, A):findIndex(n, A.columns, A)]
+	return A.data[findIndex(n, 1, A):findIndex(n, A.columns, A) + 1]
 }
 
 // Multiply multiplies two matrices together and return the resulting matrix.
@@ -47,9 +47,9 @@ func (A *Matrix) Row(n int) []float32 {
 
 func Multiply(A, B *Matrix) *Matrix {
 	C := Zeros(A.rows, B.columns)
-	for r := 0; r < C.rows; r++ {
+	for r := 1; r <= C.rows; r++ {
 		A_row := A.Row(r)
-		for c := 0; c < C.columns; c++ {
+		for c := 1; c <= C.columns; c++ {
 			B_col := B.Column(c)
 			C.Set(r, c, dotProduct(A_row, B_col))
 		}
@@ -62,8 +62,8 @@ func Multiply(A, B *Matrix) *Matrix {
 
 func Add(A, B *Matrix) *Matrix {
 	C := Zeros(A.rows, A.columns)
-	for r := 0; r < A.rows; r++ {
-		for c := 0; c < A.columns; c++ {
+	for r := 1; r <= A.rows; r++ {
+		for c := 1; c <= A.columns; c++ {
 			C.Set(r, c, A.Get(r, c) + B.Get(r, c))
 		}
 	}
@@ -106,7 +106,7 @@ func New(r, c int, data []float32) *Matrix {
 // from the underlying data slice.
 
 func findIndex(r, c int, A *Matrix) int {
-	return r * A.columns + c
+	return (r - 1) * A.columns + c - 1
 }
 
 // dotProduct calculates the algebraic dot product of two slices.  This is just
@@ -121,14 +121,25 @@ func dotProduct(a, b []float32) float32 {
 	return total
 }
 
+func (m *Matrix)Scalar(a float32) {
+	for r := 1; r <= m.rows; r++ {
+		for c := 1; c <= m.columns; c++ {
+			m.Set(r, c, m.Get(r, c) * a)
+		}
+	}
+}
+func (m *Matrix)Trans() {
+
+}
+
 func (m *Matrix)String() string {
 	var bf bytes.Buffer
 	bf.WriteByte('[')
-	for r := 0; r < m.rows; r++ {
-		for c := 0; c < m.columns; c++ {
+	for r := 1; r <= m.rows; r++ {
+		for c := 1; c <= m.columns; c++ {
 			bf.WriteString(strconv.FormatFloat(float64(m.data[findIndex(r, c, m)]), 'f', -1, 32))
-			if c == m.columns - 1 {
-				if r == m.rows - 1 {
+			if c == m.columns {
+				if r == m.rows {
 					bf.WriteByte(']')
 				} else {
 					bf.WriteString(",\n ")
